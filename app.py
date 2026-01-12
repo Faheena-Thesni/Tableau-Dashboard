@@ -48,21 +48,11 @@ def calculate_answer(question):
 
     return "Sorry, I cannot compute this from the dataset."
 
-@app.route("/")
-def home():
-    return render_template("index.html")
 
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html")
 
-@app.route("/chatbot", methods=["GET", "POST"])
-def chatbot():
-    answer = None
-    if request.method == "POST":
-        question = request.form["question"]
-        answer = calculate_answer(question)
-    return render_template("chatbot.html", answer=answer)
 
 if __name__ == "__main__":
      app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
