@@ -8,7 +8,7 @@ import os
 
 app = Flask(__name__)
 
-df = pd.read_csv("dataset.csv")
+df = pd.read_csv("netflix_titles.csv")
 df.columns = df.columns.str.lower()
 
 def correct_spelling(text):
