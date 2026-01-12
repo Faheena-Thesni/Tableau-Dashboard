@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dataset Q&A</title>
+</head>
+<body>
+
+<h2>Ask Questions from Dataset</h2>
+
+<form method="POST">
+    <input type="text" name="question" size="60" required>
+    <button type="submit">Ask</button>
+</form>
+
+{% if answer %}
+    <h3>Answer:</h3>
+    <p>{{ answer }}</p>
+{% endif %}
+
+</body>
+</html>
