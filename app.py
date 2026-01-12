@@ -49,7 +49,7 @@ def calculate_answer(question):
     return "Sorry, I cannot compute this from the dataset."
 
 
-@app.route("/dashboard")
+@app.route("/")
 def dashboard():
     return render_template("dashboard.html")
 
