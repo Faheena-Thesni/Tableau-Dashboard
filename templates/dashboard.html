@@ -1,17 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Netflix Content Analytics</title>
+
+    <!-- Tableau Embedding API -->
+    <script type="module"
+        src="https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js">
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h2 {
+            margin: 20px 0;
+        }
+
+        tableau-viz {
+            width: 100%;
+            height: 900px;
+        }
+    </style>
 </head>
+
 <body>
+
     <h2>Netflix Content Analytics</h2>
 
-    <iframe
-        src="https://public.tableau.com/views/NetflixContentDistribution_17024787172750/Practice?:showVizHome=no&:embed=yes"
-        width="100%"
-        height="900"
-        frameborder="0"
-    ></iframe>
+    <!-- OFFICIAL Tableau Embed -->
+    <tableau-viz
+        id="tableauViz"
+        src="https://public.tableau.com/views/NetflixContentDistribution_17024787172750/Practice"
+        toolbar="bottom"
+        hide-tabs>
+    </tableau-viz>
+
+    <p style="margin-top:10px;">
+        If the dashboard does not load,
+        <a href="https://public.tableau.com/views/NetflixContentDistribution_17024787172750/Practice"
+           target="_blank">
+           click here to view it on Tableau Public
+        </a>
+    </p>
 
 </body>
 </html>
