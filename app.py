@@ -1,7 +1,6 @@
 # Flask web app
 
 from flask import Flask, render_template, request
-import pandas as pd
 from textblob import TextBlob
 import difflib
 import os
