@@ -1,52 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Netflix Content Analytics</title>
+{% extends "base.html" %}
 
-    <!-- Tableau Embedding API -->
-    <script type="module"
-        src="https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js">
-    </script>
+{% block content %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
+<h1>Global Road Transportation Carbon Emissions</h1>
 
-        h2 {
-            margin: 20px 0;
-        }
+<p>
+This interactive dashboard presents country-wise CO₂ emissions generated from
+road transportation for the year 2021.
+</p>
 
-        tableau-viz {
-            width: 100%;
-            height: 900px;
-        }
-    </style>
-</head>
+<p><strong>Loading dashboard... please wait.</strong></p>
 
-<body>
+<iframe 
+    src="https://public.tableau.com/views/CarbonEmissions_17702013148270/Dashboard1"
+    width="100%" 
+    height="850"
+    style="border:none;"
+    allowfullscreen>
+</iframe>
 
-    <h2>Carbon-Emission from Road Transportation across Country</h2>
+<h2>Dashboard Components</h2>
 
-    <!-- OFFICIAL Tableau Embed -->
-    <tableau-viz
-        id="tableauViz"
-        src="https://public.tableau.com/views/CarbonEmissions_17702013148270/Dashboard1?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link"
-        toolbar="bottom"
-        hide-tabs>
-    </tableau-viz>
+<h3>1. Global Emission Map</h3>
+<p>
+Displays the geographic distribution of road transportation emissions across countries.
+Darker color intensity indicates higher emission magnitude.
+</p>
 
-    <p style="margin-top:10px;">
-        If the dashboard does not load,
-        <a href="https://public.tableau.com/views/CarbonEmissions_17702013148270/Dashboard1?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link"
-           target="_blank">
-           click here to view it on Tableau Public
-        </a>
-    </p>
+<h3>2. Top Emitting Countries</h3>
+<p>
+Ranks countries based on total road transportation emissions,
+allowing comparative analysis of major contributors.
+</p>
 
-</body>
-</html>
+<h3>3. Emission Distribution</h3>
+<p>
+Provides insight into the spread and variability of emissions across countries,
+helping identify concentration patterns and emission inequality.
+</p>
+
+{% endblock %}
