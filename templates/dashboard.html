@@ -2,50 +2,53 @@
 {% block content %}
 
 <div class="page-header">
-    <h1>India Air Quality Dashboard</h1>
-    <p>Real-time pollution monitoring across 251 cities and 30 states. Data sourced from
-    Central Pollution Control Board (CPCB) monitoring stations as of February 25, 2026.</p>
+    <h1>Global Road Transportation Carbon Emissions</h1>
+    <p>Country-level CO₂-equivalent emissions from road transportation for the year 2021,
+    sourced from the Climate TRACE API. Data covers 231 countries across all global regions.</p>
 </div>
 
 <!-- STAT CARDS -->
 <div class="stat-grid">
     <div class="stat-card">
-        <div class="stat-label">Total Readings</div>
-        <div class="stat-value">3,294</div>
-        <div class="stat-unit">pollution records</div>
+        <div class="stat-label">Total Road Emissions</div>
+        <div class="stat-value">6.18B</div>
+        <div class="stat-unit">tonnes CO₂e · 2021</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Cities Monitored</div>
-        <div class="stat-value">251</div>
-        <div class="stat-unit">across India</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">States Covered</div>
-        <div class="stat-value">30</div>
-        <div class="stat-unit">states &amp; UTs</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Monitoring Stations</div>
-        <div class="stat-value">492</div>
-        <div class="stat-unit">active stations</div>
+        <div class="stat-label">Countries Analysed</div>
+        <div class="stat-value">231</div>
+        <div class="stat-unit">nations covered</div>
     </div>
     <div class="stat-card alert">
-        <div class="stat-label">National PM2.5 Avg</div>
-        <div class="stat-value">105.8</div>
-        <div class="stat-unit">μg/m³ · 7× WHO limit</div>
+        <div class="stat-label">Top Emitter</div>
+        <div class="stat-value">USA</div>
+        <div class="stat-unit">1.53B tonnes · 24.7% of global</div>
     </div>
     <div class="stat-card alert">
-        <div class="stat-label">Most Polluted City</div>
-        <div class="stat-value" style="font-size:1.2rem;">Agartala</div>
-        <div class="stat-unit">PM2.5: 313 μg/m³</div>
+        <div class="stat-label">2nd Largest</div>
+        <div class="stat-value">China</div>
+        <div class="stat-unit">824M tonnes · 13.3% of global</div>
+    </div>
+    <div class="stat-card warn">
+        <div class="stat-label">Avg Per Country</div>
+        <div class="stat-value">26.8M</div>
+        <div class="stat-unit">tonnes CO₂e per nation</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Emission Type</div>
+        <div class="stat-value" style="font-size:1rem; padding-top:0.25rem;">CO₂e 100yr</div>
+        <div class="stat-unit">GWP · road sector only</div>
     </div>
 </div>
 
 <!-- TABLEAU DASHBOARD -->
 <div class="card" style="margin-bottom: 2rem;">
     <div class="card-header">
-        <div class="card-title">Interactive Pollution Map &amp; Charts</div>
-        <span class="badge badge-blue">Tableau Dashboard</span>
+        <div class="card-title">Interactive Global Emissions Map &amp; Charts</div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+            <span class="badge badge-blue">Tableau Dashboard</span>
+            <span class="badge badge-gray">Climate TRACE · 2021</span>
+        </div>
     </div>
     <div style="padding: 0;">
         <script type="module"
@@ -61,35 +64,43 @@
     </div>
 </div>
 
-<!-- QUICK LINKS -->
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">📊 Explore the Dataset</div>
-        </div>
-        <div class="card-body">
-            <p style="font-size:0.85rem; color:var(--gray500); margin-bottom:1rem; line-height:1.6;">
-                Browse, search, and filter all 3,294 air quality readings across India.
-                Filter by state, city, or pollutant type.
-            </p>
-            <a href="/data" style="display:inline-block; background:var(--navy); color:white;
-                padding:0.55rem 1.25rem; border-radius:var(--radius); font-size:0.82rem;
-                font-weight:600; text-decoration:none;">View Full Dataset →</a>
-        </div>
+<!-- DASHBOARD COMPONENTS EXPLANATION -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Dashboard Components</div>
     </div>
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">🌬️ Ask AirBot</div>
-            <span class="badge badge-purple">ML-Powered</span>
-        </div>
-        <div class="card-body">
-            <p style="font-size:0.85rem; color:var(--gray500); margin-bottom:1rem; line-height:1.6;">
-                Ask any question about India's air quality in plain English.
-                Handles typos, comparisons, rankings and health assessments.
-            </p>
-            <a href="/chatbot" style="display:inline-block; background:var(--blue); color:white;
-                padding:0.55rem 1.25rem; border-radius:var(--radius); font-size:0.82rem;
-                font-weight:600; text-decoration:none;">Open AirBot →</a>
+    <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem;">
+            <div>
+                <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.08em;
+                    text-transform:uppercase; color:var(--blue); margin-bottom:0.5rem;">
+                    1. Global Emission Map
+                </div>
+                <p style="font-size:0.83rem; color:var(--gray500); line-height:1.65;">
+                    Geographic distribution of road transportation emissions across countries.
+                    Darker colour intensity indicates higher emission magnitude.
+                </p>
+            </div>
+            <div>
+                <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.08em;
+                    text-transform:uppercase; color:var(--blue); margin-bottom:0.5rem;">
+                    2. Top Emitting Countries
+                </div>
+                <p style="font-size:0.83rem; color:var(--gray500); line-height:1.65;">
+                    Countries ranked by total road transportation emissions, enabling
+                    comparative analysis of the major contributors to global warming.
+                </p>
+            </div>
+            <div>
+                <div style="font-size:0.7rem; font-weight:700; letter-spacing:0.08em;
+                    text-transform:uppercase; color:var(--blue); margin-bottom:0.5rem;">
+                    3. Emission Distribution
+                </div>
+                <p style="font-size:0.83rem; color:var(--gray500); line-height:1.65;">
+                    Countries grouped into emission ranges, showing whether emissions are
+                    concentrated among a few nations or broadly distributed globally.
+                </p>
+            </div>
         </div>
     </div>
 </div>
