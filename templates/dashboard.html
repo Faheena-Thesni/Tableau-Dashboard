@@ -1,44 +1,97 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<h1>Global Road Transportation Carbon Emissions</h1>
+<div class="page-header">
+    <h1>India Air Quality Dashboard</h1>
+    <p>Real-time pollution monitoring across 251 cities and 30 states. Data sourced from
+    Central Pollution Control Board (CPCB) monitoring stations as of February 25, 2026.</p>
+</div>
 
-<p>
-This interactive dashboard presents country-wise CO₂ emissions generated from
-road transportation for the year 2021.
-</p>
+<!-- STAT CARDS -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Readings</div>
+        <div class="stat-value">3,294</div>
+        <div class="stat-unit">pollution records</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Cities Monitored</div>
+        <div class="stat-value">251</div>
+        <div class="stat-unit">across India</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">States Covered</div>
+        <div class="stat-value">30</div>
+        <div class="stat-unit">states &amp; UTs</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Monitoring Stations</div>
+        <div class="stat-value">492</div>
+        <div class="stat-unit">active stations</div>
+    </div>
+    <div class="stat-card alert">
+        <div class="stat-label">National PM2.5 Avg</div>
+        <div class="stat-value">105.8</div>
+        <div class="stat-unit">μg/m³ · 7× WHO limit</div>
+    </div>
+    <div class="stat-card alert">
+        <div class="stat-label">Most Polluted City</div>
+        <div class="stat-value" style="font-size:1.2rem;">Agartala</div>
+        <div class="stat-unit">PM2.5: 313 μg/m³</div>
+    </div>
+</div>
 
-<!-- Tableau JS API -->
-<script type="module"
-src="https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js">
-</script>
+<!-- TABLEAU DASHBOARD -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <div class="card-title">Interactive Pollution Map &amp; Charts</div>
+        <span class="badge badge-blue">Tableau Dashboard</span>
+    </div>
+    <div style="padding: 0;">
+        <script type="module"
+            src="https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js">
+        </script>
+        <tableau-viz
+            src="https://public.tableau.com/views/CarbonEmissions_17702013148270/Dashboard1"
+            toolbar="bottom"
+            hide-tabs
+            width="100%"
+            height="820">
+        </tableau-viz>
+    </div>
+</div>
 
-<tableau-viz
-    src="https://public.tableau.com/views/CarbonEmissions_17702013148270/Dashboard1"
-    toolbar="bottom"
-    hide-tabs
-    width="100%"
-    height="850">
-</tableau-viz>
-
-<h2>Dashboard Components</h2>
-
-<h3>1. Global Emission Map</h3>
-<p>
-Displays the geographic distribution of road transportation emissions across countries.
-Darker color intensity indicates higher emission magnitude.
-</p>
-
-<h3>2. Top Emitting Countries</h3>
-<p>
-Ranks countries based on total road transportation emissions,
-allowing comparative analysis of major contributors.
-</p>
-
-<h3>3. Emission Distribution</h3>
-<p>
-Illustrates the distribution of road transportation emissions by grouping countries into emission ranges and showing the number of countries within each range, helping identify whether emissions are concentrated among a few high-emitting nations or broadly distributed.
-</p>
+<!-- QUICK LINKS -->
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">📊 Explore the Dataset</div>
+        </div>
+        <div class="card-body">
+            <p style="font-size:0.85rem; color:var(--gray500); margin-bottom:1rem; line-height:1.6;">
+                Browse, search, and filter all 3,294 air quality readings across India.
+                Filter by state, city, or pollutant type.
+            </p>
+            <a href="/data" style="display:inline-block; background:var(--navy); color:white;
+                padding:0.55rem 1.25rem; border-radius:var(--radius); font-size:0.82rem;
+                font-weight:600; text-decoration:none;">View Full Dataset →</a>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">🌬️ Ask AirBot</div>
+            <span class="badge badge-purple">ML-Powered</span>
+        </div>
+        <div class="card-body">
+            <p style="font-size:0.85rem; color:var(--gray500); margin-bottom:1rem; line-height:1.6;">
+                Ask any question about India's air quality in plain English.
+                Handles typos, comparisons, rankings and health assessments.
+            </p>
+            <a href="/chatbot" style="display:inline-block; background:var(--blue); color:white;
+                padding:0.55rem 1.25rem; border-radius:var(--radius); font-size:0.82rem;
+                font-weight:600; text-decoration:none;">Open AirBot →</a>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

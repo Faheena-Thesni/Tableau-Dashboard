@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .controls {
+        display: flex; gap: 0.75rem; flex-wrap: wrap;
+        margin-bottom: 1.25rem; align-items: center;
+    }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-icon {
+        position: absolute; left: 0.75rem; top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray500); font-size: 0.85rem; pointer-events: none;
+    }
+    .search-input {
+        width: 100%; padding: 0.55rem 0.75rem 0.55rem 2.25rem;
+        border: 1px solid var(--gray300); border-radius: var(--radius);
+        font-family: 'Source Sans 3', sans-serif;
+        font-size: 0.85rem; color: var(--gray900);
+        outline: none; transition: border-color 0.15s; background: white;
+    }
+    .search-input:focus { border-color: var(--blue2); }
+    .filter-select {
+        padding: 0.55rem 0.85rem;
+        border: 1px solid var(--gray300); border-radius: var(--radius);
+        font-family: 'Source Sans 3', sans-serif;
+        font-size: 0.82rem; color: var(--gray700);
+        background: white; outline: none; cursor: pointer;
+        transition: border-color 0.15s; min-width: 140px;
+    }
+    .filter-select:focus { border-color: var(--blue2); }
+    .btn {
+        padding: 0.55rem 1rem; border: none; border-radius: var(--radius);
+        font-family: 'Source Sans 3', sans-serif;
+        font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-outline {
+        background: white; border: 1px solid var(--gray300); color: var(--gray700);
+    }
+    .btn-outline:hover { border-color: var(--blue2); color: var(--blue); }
+    .results-info { font-size: 0.78rem; color: var(--gray500); white-space: nowrap; align-self: center; }
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--gray200); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; background: white; }
+    thead { background: var(--navy); position: sticky; top: 0; z-index: 10; }
+    th {
+        color: #94a3b8; font-weight: 600; font-size: 0.7rem;
+        letter-spacing: 0.07em; text-transform: uppercase;
+        padding: 0.75rem 1rem; text-align: left; white-space: nowrap;
+        cursor: pointer; user-select: none; transition: color 0.15s;
+    }
+    th:hover { color: white; }
+    th.sorted-asc::after  { content: ' ▲'; color: var(--cyan); }
+    th.sorted-desc::after { content: ' ▼'; color: var(--cyan); }
+    td {
+        padding: 0.6rem 1rem; border-bottom: 1px solid var(--gray100);
+        color: var(--gray700); white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8faff; }
+    .td-city   { font-weight: 600; color: var(--navy); }
+    .td-state  { color: var(--gray500); font-size: 0.78rem; }
+    .td-station {
+        max-width: 220px; overflow: hidden; text-overflow: ellipsis;
+        color: var(--gray500); font-size: 0.76rem;
+    }
+    .pol-badge {
+        display: inline-block; padding: 0.15rem 0.5rem;
+        border-radius: 4px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em;
+    }
+    .pol-PM25  { background: #fee2e2; color: #991b1b; }
+    .pol-PM10  { background: #fef3c7; color: #92400e; }
+    .pol-NO2   { background: #dbeafe; color: #1d4ed8; }
+    .pol-SO2   { background: #f3e8ff; color: #7e22ce; }
+    .pol-CO    { background: #d1fae5; color: #065f46; }
+    .pol-OZONE { background: #e0f2fe; color: #075985; }
+    .pol-NH3   { background: #fce7f3; color: #9d174d; }
+    .val-safe   { color: #059669; font-weight: 600; }
+    .val-warn   { color: #d97706; font-weight: 600; }
+    .val-danger { color: #dc2626; font-weight: 600; }
+    .val-na     { color: var(--gray300); }
+    .pagination {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.85rem 1rem; border-top: 1px solid var(--gray100);
+        background: var(--gray50); flex-wrap: wrap; gap: 0.5rem;
+    }
+    .page-info { font-size: 0.78rem; color: var(--gray500); }
+    .page-btns { display: flex; gap: 0.35rem; }
+    .page-btn {
+        padding: 0.3rem 0.65rem; border: 1px solid var(--gray200);
+        border-radius: 4px; background: white; font-size: 0.78rem;
+        cursor: pointer; transition: all 0.15s; color: var(--gray700);
+        font-family: 'Source Sans 3', sans-serif;
+    }
+    .page-btn:hover { border-color: var(--blue2); color: var(--blue); }
+    .page-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .loading-row td { text-align: center; padding: 3rem; color: var(--gray500); font-size: 0.85rem; }
+</style>
+
+<div class="page-header">
+    <h1>Air Quality Dataset</h1>
+    <p>Browse all 3,294 pollution readings from CPCB monitoring stations across India.
+    Search by city, filter by state or pollutant, and sort any column.</p>
+</div>
+
+<div class="controls">
+    <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput"
+            placeholder="Search city, state or station...">
+    </div>
+    <select class="filter-select" id="stateFilter">
+        <option value="">All States</option>
+    </select>
+    <select class="filter-select" id="pollutantFilter">
+        <option value="">All Pollutants</option>
+        <option>PM2.5</option><option>PM10</option>
+        <option>NO2</option><option>SO2</option>
+        <option>CO</option><option>OZONE</option><option>NH3</option>
+    </select>
+    <button class="btn btn-outline" onclick="resetFilters()">↺ Reset</button>
+    <div class="results-info" id="resultsInfo">Loading...</div>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th onclick="sortBy('state')">State</th>
+                    <th onclick="sortBy('city')">City</th>
+                    <th onclick="sortBy('station')">Station</th>
+                    <th onclick="sortBy('pollutant')">Pollutant</th>
+                    <th onclick="sortBy('min')"  style="text-align:right;">Min</th>
+                    <th onclick="sortBy('max')"  style="text-align:right;">Max</th>
+                    <th onclick="sortBy('avg')"  style="text-align:right;">Average</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr class="loading-row"><td colspan="8">⏳ Loading dataset...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination">
+        <div class="page-info" id="pageInfo"></div>
+        <div class="page-btns" id="pageBtns"></div>
+    </div>
+</div>
+
+<script>
+const WHO = { 'PM2.5':15,'PM10':45,'NO2':10,'SO2':40,'CO':4000,'OZONE':100,'NH3':400 };
+
+function getStatus(val, pol) {
+    if (val === '-' || val === null || isNaN(val)) return { label:'—', cls:'val-na' };
+    const limit = WHO[pol] || 9999;
+    if (val <= limit)     return { label:'✅ Safe',     cls:'val-safe' };
+    if (val <= limit * 2) return { label:'⚠️ Moderate', cls:'val-warn' };
+    return                       { label:'🔴 High',     cls:'val-danger' };
+}
+
+function polClass(p) { return 'pol-' + p.replace('.',''); }
+
+let allData=[], filtered=[], sortCol='city', sortDir=1, currentPage=1;
+const PAGE_SIZE = 50;
+
+async function loadData() {
+    try {
+        const res = await fetch('/api/dataset');
+        allData = await res.json();
+        const states = [...new Set(allData.map(r => r.state))].sort();
+        const sel = document.getElementById('stateFilter');
+        states.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s; o.textContent = s; sel.appendChild(o);
+        });
+        applyFilters();
+    } catch(e) {
+        document.getElementById('tableBody').innerHTML =
+            '<tr class="loading-row"><td colspan="8">❌ Failed to load. Please refresh.</td></tr>';
+    }
+}
+
+function applyFilters() {
+    const search = document.getElementById('searchInput').value.toLowerCase().trim();
+    const state  = document.getElementById('stateFilter').value;
+    const pol    = document.getElementById('pollutantFilter').value;
+
+    filtered = allData.filter(r => {
+        if (state && r.state !== state) return false;
+        if (pol   && r.pollutant !== pol) return false;
+        if (search && !(r.city+r.state+r.station).toLowerCase().includes(search)) return false;
+        return true;
+    });
+
+    filtered.sort((a,b) => {
+        let va=a[sortCol], vb=b[sortCol];
+        if (['min','max','avg'].includes(sortCol)) { va=parseFloat(va)||−Infinity; vb=parseFloat(vb)||−Infinity; }
+        else { va=String(va).toLowerCase(); vb=String(vb).toLowerCase(); }
+        return va<vb ? -sortDir : va>vb ? sortDir : 0;
+    });
+    currentPage=1; renderTable();
+}
+
+function renderTable() {
+    const total=filtered.length, start=(currentPage-1)*PAGE_SIZE;
+    const end=Math.min(start+PAGE_SIZE,total), page=filtered.slice(start,end);
+    document.getElementById('resultsInfo').textContent = total.toLocaleString()+' records';
+    const tbody=document.getElementById('tableBody');
+    if (!page.length) {
+        tbody.innerHTML='<tr class="loading-row"><td colspan="8">No records match your filters.</td></tr>';
+        renderPagination(0,0,0); return;
+    }
+    tbody.innerHTML = page.map(r => {
+        const st=getStatus(r.avg,r.pollutant);
+        return `<tr>
+            <td class="td-state">${r.state}</td>
+            <td class="td-city">${r.city}</td>
+            <td class="td-station" title="${r.station}">${r.station}</td>
+            <td><span class="pol-badge ${polClass(r.pollutant)}">${r.pollutant}</span></td>
+            <td style="text-align:right;">${r.min!=='-'?r.min:'—'}</td>
+            <td style="text-align:right;">${r.max!=='-'?r.max:'—'}</td>
+            <td style="text-align:right;" class="${st.cls}">${r.avg!=='-'?r.avg:'—'}</td>
+            <td><span class="${st.cls}">${st.label}</span></td>
+        </tr>`;
+    }).join('');
+    renderPagination(total,start,end);
+}
+
+function renderPagination(total,start,end) {
+    const totalPages=Math.ceil(total/PAGE_SIZE);
+    document.getElementById('pageInfo').textContent =
+        total>0 ? `Showing ${start+1}–${end} of ${total.toLocaleString()}` : '';
+    const c=document.getElementById('pageBtns'); c.innerHTML='';
+
+    const prev=document.createElement('button');
+    prev.className='page-btn'; prev.textContent='← Prev';
+    prev.disabled=currentPage===1;
+    prev.onclick=()=>{ currentPage--; renderTable(); };
+    c.appendChild(prev);
+
+    pageRange(currentPage,totalPages).forEach(p => {
+        if (p==='...') {
+            const d=document.createElement('span');
+            d.textContent='…'; d.style.cssText='padding:0.3rem 0.25rem;color:var(--gray300)';
+            c.appendChild(d);
+        } else {
+            const b=document.createElement('button');
+            b.className='page-btn'+(p===currentPage?' active':'');
+            b.textContent=p; b.onclick=()=>{ currentPage=p; renderTable(); };
+            c.appendChild(b);
+        }
+    });
+
+    const next=document.createElement('button');
+    next.className='page-btn'; next.textContent='Next →';
+    next.disabled=currentPage===totalPages||totalPages===0;
+    next.onclick=()=>{ currentPage++; renderTable(); };
+    c.appendChild(next);
+}
+
+function pageRange(cur,total) {
+    if (total<=7) return Array.from({length:total},(_,i)=>i+1);
+    if (cur<=4) return [1,2,3,4,5,'...',total];
+    if (cur>=total-3) return [1,'...',total-4,total-3,total-2,total-1,total];
+    return [1,'...',cur-1,cur,cur+1,'...',total];
+}
+
+function sortBy(col) {
+    if (sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=1; }
+    document.querySelectorAll('th').forEach(t=>t.classList.remove('sorted-asc','sorted-desc'));
+    const idx=['state','city','station','pollutant','min','max','avg'].indexOf(col);
+    const ths=document.querySelectorAll('th');
+    if (ths[idx]) ths[idx].classList.add(sortDir===1?'sorted-asc':'sorted-desc');
+    applyFilters();
+}
+
+function resetFilters() {
+    document.getElementById('searchInput').value='';
+    document.getElementById('stateFilter').value='';
+    document.getElementById('pollutantFilter').value='';
+    applyFilters();
+}
+
+let st; 
+document.getElementById('searchInput').addEventListener('input',()=>{ clearTimeout(st); st=setTimeout(applyFilters,250); });
+document.getElementById('stateFilter').addEventListener('change',applyFilters);
+document.getElementById('pollutantFilter').addEventListener('change',applyFilters);
+
+loadData();
+</script>
+
+{% endblock %}

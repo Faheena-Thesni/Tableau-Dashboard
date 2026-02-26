@@ -1,115 +1,85 @@
 from flask import Flask, render_template, jsonify, request
 import requests
-import json
-import os
+import pandas as pd
+import math
 
 app = Flask(__name__)
 
-# Load dataset context once at startup
-with open("dataset_context.json", "r") as f:
-    DATASET_CTX = json.load(f)
+# Load dataset once at startup
+df = pd.read_csv("air_quality.csv")
+df["pollutant_avg"] = pd.to_numeric(df["pollutant_avg"], errors="coerce")
+df["pollutant_min"] = pd.to_numeric(df["pollutant_min"], errors="coerce")
+df["pollutant_max"] = pd.to_numeric(df["pollutant_max"], errors="coerce")
 
-SYSTEM_PROMPT = f"""You are AirBot, an expert data analyst for India's Air Quality dataset (Feb 2026).
+def build_dataset_json():
+    records = []
+    for _, row in df.iterrows():
+        avg = row["pollutant_avg"]
+        mn  = row["pollutant_min"]
+        mx  = row["pollutant_max"]
+        records.append({
+            "state":     row["state"].replace("_", " "),
+            "city":      row["city"],
+            "station":   row["station"],
+            "pollutant": row["pollutant_id"],
+            "min":  round(mn,  1) if not (isinstance(mn,  float) and math.isnan(mn))  else "-",
+            "max":  round(mx,  1) if not (isinstance(mx,  float) and math.isnan(mx))  else "-",
+            "avg":  round(avg, 1) if not (isinstance(avg, float) and math.isnan(avg)) else "-",
+        })
+    return records
 
-DATASET:
-- Total Records: {DATASET_CTX['total_records']}
-- Cities: {', '.join(DATASET_CTX['cities'])}
-- States: {', '.join(DATASET_CTX['states'])}
-- Pollutants: {', '.join(DATASET_CTX['pollutants'])}
+DATASET_JSON = build_dataset_json()
 
-CITY-LEVEL AVERAGES (city → pollutant → avg μg/m³):
-{json.dumps(DATASET_CTX['city_stats'], indent=1)}
-
-STATE-LEVEL AVERAGES:
-{json.dumps(DATASET_CTX['state_stats'], indent=1)}
-
-NATIONAL AVERAGES:
-{json.dumps(DATASET_CTX['overall_avg'], indent=1)}
-
-TOP POLLUTED CITIES PER POLLUTANT:
-{json.dumps(DATASET_CTX['top_cities_per_pollutant'], indent=1)}
-
-STATION COUNTS PER STATE:
-{json.dumps(DATASET_CTX['station_count_per_state'], indent=1)}
-
-YOUR CAPABILITIES:
-1. Correct spelling mistakes silently (Dehli→Delhi, mumabi→Mumbai, pollustion→pollution, avrage→average)
-2. Handle abbreviations (blore=Bengaluru, hyd=Hyderabad, mum=Mumbai, del=Delhi)  
-3. Do math: averages, comparisons, rankings, percentages
-4. Compare cities/states side-by-side
-5. Rank top/bottom N locations for any pollutant
-6. Explain pollutants and health impacts
-
-POLLUTANT WHO LIMITS:
-- PM2.5: 15 μg/m³ annual (⚠️ >35.4 = Unhealthy)
-- PM10: 45 μg/m³ annual  
-- NO2: 10 μg/m³ annual
-- SO2: 40 μg/m³ per 24hr
-- CO: 4 mg/m³ per 24hr
-- OZONE: 100 μg/m³ per 8hr
-- NH3: 400 μg/m³ per 24hr
-
-Always include specific numbers. Use ⚠️ for concerning levels, ✅ for safe. If data unavailable for a location, say so clearly."""
+from chatbot_engine import generate_response
 
 
 @app.route("/")
 def dashboard():
     return render_template("dashboard.html", title="Dashboard")
 
-
-@app.route("/about")
-def about():
-    return render_template("about.html", title="About")
-
+@app.route("/data")
+def data():
+    return render_template("data.html", title="Dataset")
 
 @app.route("/chatbot")
 def chatbot():
     return render_template("chatbot.html", title="AirBot — Air Quality Assistant")
 
+@app.route("/about")
+def about():
+    return render_template("about.html", title="About")
+
+@app.route("/ping")
+def ping():
+    """Keep-alive — prevents Render free tier from sleeping."""
+    return {"status": "ok"}, 200
+
+@app.route("/api/dataset")
+def api_dataset():
+    """Serve full dataset as JSON for the frontend table."""
+    return app.response_class(
+        response=__import__('json').dumps(DATASET_JSON),
+        status=200,
+        mimetype='application/json'
+    )
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
-    """Proxy endpoint for Claude API — keeps API key server-side."""
     data = request.get_json()
     messages = data.get("messages", [])
-
     if not messages:
-        return jsonify({"error": "No messages provided"}), 400
-
-    # Limit history to last 20 messages to control token usage
-    messages = messages[-20:]
-
-    response = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key": os.environ.get("ANTHROPIC_API_KEY", ""),
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json"
-        },
-        json={
-            "model": "claude-haiku-4-5-20251001",  # Fast + cheap for chatbot
-            "max_tokens": 1024,
-            "system": SYSTEM_PROMPT,
-            "messages": messages
-        },
-        timeout=30
-    )
-
-    return jsonify(response.json()), response.status_code
-
+        return {"error": "No messages provided"}, 400
+    user_message = messages[-1]["content"]
+    response = generate_response(user_message)
+    return {"reply": response}
 
 @app.route("/api/emissions")
 def get_emissions():
     BASE_URL = "https://api.climatetrace.org/v7/sources/emissions"
-    params = {
-        "year": 2021,
-        "sectors": "transportation",
-        "subsectors": "road-transportation",
-        "gas": "co2e_100yr"
-    }
-    response = requests.get(BASE_URL, params=params)
+    params = {"year": 2021, "sectors": "transportation",
+              "subsectors": "road-transportation", "gas": "co2e_100yr"}
+    response = requests.get(BASE_URL, params=params, timeout=10)
     return response.json()
-
 
 if __name__ == "__main__":
     app.run(debug=False)
