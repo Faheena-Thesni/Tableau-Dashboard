@@ -3,62 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} — India Air Quality Monitor</title>
+    <title>{{ title }} — Carbon Emissions Monitor</title>
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* ── LOADING SCREEN ── */
-        #loader {
-            position: fixed; inset: 0;
-            background: #0a1628;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        #loader.hidden { opacity: 0; visibility: hidden; }
-        .loader-logo {
-            font-family: 'Source Serif 4', serif;
-            font-size: 1.5rem; font-weight: 700;
-            color: white; margin-bottom: 0.4rem;
-            letter-spacing: -0.01em;
-        }
-        .loader-sub {
-            font-family: 'Source Sans 3', sans-serif;
-            font-size: 0.75rem; color: #64748b;
-            letter-spacing: 0.1em; text-transform: uppercase;
-            margin-bottom: 2.5rem;
-        }
-        .loader-bar-wrap {
-            width: 200px; height: 3px;
-            background: #1e2d45; border-radius: 2px; overflow: hidden;
-        }
-        .loader-bar {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, #3b82f6, #06b6d4);
-            border-radius: 2px;
-            animation: loadProgress 1.8s ease forwards;
-        }
-        @keyframes loadProgress {
-            0%   { width: 0%; }
-            40%  { width: 60%; }
-            70%  { width: 80%; }
-            100% { width: 100%; }
-        }
-        .loader-status {
-            font-family: 'Source Sans 3', sans-serif;
-            font-size: 0.72rem; color: #475569;
-            margin-top: 0.75rem; letter-spacing: 0.05em;
-        }
-
-        /* ── CSS VARIABLES ── */
         :root {
             --navy:    #0a1628;
             --navy2:   #112240;
-            --navy3:   #1a3a5c;
             --blue:    #1d4ed8;
             --blue2:   #3b82f6;
             --cyan:    #06b6d4;
-            --white:   #f8fafc;
             --gray50:  #f8fafc;
             --gray100: #f1f5f9;
             --gray200: #e2e8f0;
@@ -72,247 +25,114 @@
             --shadow:  0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
             --radius:  6px;
         }
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-
         body {
             font-family: 'Source Sans 3', sans-serif;
-            background: var(--gray50);
-            color: var(--gray900);
-            min-height: 100vh;
-            display: flex; flex-direction: column;
+            background: var(--gray50); color: var(--gray900);
+            min-height: 100vh; display: flex; flex-direction: column;
         }
-
-        /* ── TOP BAR ── */
         .topbar {
-            background: var(--navy);
-            padding: 0.35rem 2rem;
+            background: var(--navy); padding: 0.35rem 2rem;
             display: flex; align-items: center; justify-content: space-between;
         }
-        .topbar-left {
-            font-size: 0.7rem; color: #64748b;
-            letter-spacing: 0.06em; text-transform: uppercase;
-        }
+        .topbar-left { font-size: 0.7rem; color: #64748b; letter-spacing: 0.06em; text-transform: uppercase; }
         .topbar-right { display: flex; align-items: center; gap: 0.5rem; }
-        .live-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: #22c55e; animation: livePulse 2s infinite;
-        }
+        .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: livePulse 2s infinite; }
         @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .live-text {
-            font-size: 0.68rem; color: #22c55e;
-            letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
-        }
-
-        /* ── NAVBAR ── */
+        .live-text { font-size: 0.68rem; color: #22c55e; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
         nav {
-            background: var(--navy2);
-            border-bottom: 1px solid #1e3a5f;
-            padding: 0 2rem;
-            display: flex; align-items: center;
-            justify-content: space-between;
-            height: 60px;
+            background: var(--navy2); border-bottom: 1px solid #1e3a5f;
+            padding: 0 2rem; display: flex; align-items: center;
+            justify-content: space-between; height: 60px;
             position: sticky; top: 0; z-index: 100;
             box-shadow: 0 2px 12px rgba(0,0,0,0.3);
         }
-        .nav-brand {
-            display: flex; align-items: center; gap: 0.75rem;
-            text-decoration: none;
-        }
+        .nav-brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
         .nav-brand-icon {
             width: 34px; height: 34px;
             background: linear-gradient(135deg, var(--blue), var(--cyan));
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem;
+            border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem;
         }
         .nav-brand-text { display: flex; flex-direction: column; }
-        .nav-brand-title {
-            font-family: 'Source Serif 4', serif;
-            font-size: 0.95rem; font-weight: 700;
-            color: white; line-height: 1.1;
-        }
-        .nav-brand-sub {
-            font-size: 0.62rem; color: #64748b;
-            letter-spacing: 0.06em; text-transform: uppercase;
-        }
+        .nav-brand-title { font-family: 'Source Serif 4', serif; font-size: 0.95rem; font-weight: 700; color: white; line-height: 1.1; }
+        .nav-brand-sub { font-size: 0.62rem; color: #64748b; letter-spacing: 0.06em; text-transform: uppercase; }
         .nav-links { display: flex; align-items: center; gap: 0.25rem; }
         .nav-links a {
-            color: #94a3b8; text-decoration: none;
-            font-size: 0.82rem; font-weight: 500;
-            padding: 0.45rem 0.85rem;
-            border-radius: var(--radius);
-            transition: all 0.15s; letter-spacing: 0.01em;
+            color: #94a3b8; text-decoration: none; font-size: 0.82rem; font-weight: 500;
+            padding: 0.45rem 0.85rem; border-radius: var(--radius); transition: all 0.15s;
         }
         .nav-links a:hover { color: white; background: rgba(255,255,255,0.07); }
         .nav-links a.active { color: white; background: var(--blue); }
-
-        /* ── MAIN ── */
-        main {
-            flex: 1; width: 100%;
-            max-width: 1300px; margin: 0 auto;
-            padding: 2rem 2rem 3rem;
-        }
-
-        /* ── PAGE HEADER ── */
-        .page-header {
-            margin-bottom: 2rem; padding-bottom: 1.25rem;
-            border-bottom: 1px solid var(--gray200);
-        }
-        .page-header h1 {
-            font-family: 'Source Serif 4', serif;
-            font-size: 1.75rem; font-weight: 700;
-            color: var(--navy); line-height: 1.2; margin-bottom: 0.35rem;
-        }
-        .page-header p {
-            font-size: 0.88rem; color: var(--gray500);
-            max-width: 680px; line-height: 1.6;
-        }
-
-        /* ── STAT CARDS ── */
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1rem; margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: white; border: 1px solid var(--gray200);
-            border-radius: var(--radius); padding: 1.1rem 1.25rem;
-            box-shadow: var(--shadow);
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
+        main { flex: 1; width: 100%; max-width: 1300px; margin: 0 auto; padding: 2rem 2rem 3rem; }
+        .page-header { margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--gray200); }
+        .page-header h1 { font-family: 'Source Serif 4', serif; font-size: 1.75rem; font-weight: 700; color: var(--navy); line-height: 1.2; margin-bottom: 0.35rem; }
+        .page-header p { font-size: 0.88rem; color: var(--gray500); max-width: 680px; line-height: 1.6; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; border: 1px solid var(--gray200); border-radius: var(--radius); padding: 1.1rem 1.25rem; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s; }
         .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .stat-label {
-            font-size: 0.68rem; font-weight: 600;
-            color: var(--gray500); text-transform: uppercase;
-            letter-spacing: 0.08em; margin-bottom: 0.4rem;
-        }
-        .stat-value {
-            font-family: 'Source Serif 4', serif;
-            font-size: 1.8rem; font-weight: 700;
-            color: var(--navy); line-height: 1;
-        }
+        .stat-label { font-size: 0.68rem; font-weight: 600; color: var(--gray500); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+        .stat-value { font-family: 'Source Serif 4', serif; font-size: 1.8rem; font-weight: 700; color: var(--navy); line-height: 1; }
         .stat-unit { font-size: 0.72rem; color: var(--gray500); margin-top: 0.2rem; }
         .stat-card.alert .stat-value { color: var(--red); }
         .stat-card.warn  .stat-value { color: var(--amber); }
         .stat-card.good  .stat-value { color: var(--green); }
-
-        /* ── CARD ── */
-        .card {
-            background: white; border: 1px solid var(--gray200);
-            border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
-        }
-        .card-header {
-            padding: 1rem 1.5rem; border-bottom: 1px solid var(--gray100);
-            display: flex; align-items: center;
-            justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-        }
-        .card-title {
-            font-family: 'Source Serif 4', serif;
-            font-size: 1rem; font-weight: 600; color: var(--navy);
-        }
+        .card { background: white; border: 1px solid var(--gray200); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--gray100); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+        .card-title { font-family: 'Source Serif 4', serif; font-size: 1rem; font-weight: 600; color: var(--navy); }
         .card-body { padding: 1.5rem; }
-
-        /* ── BADGES ── */
-        .badge {
-            display: inline-block; font-size: 0.65rem; font-weight: 600;
-            padding: 0.2rem 0.55rem; border-radius: 20px;
-            letter-spacing: 0.04em; text-transform: uppercase;
-        }
+        .badge { display: inline-block; font-size: 0.65rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 20px; letter-spacing: 0.04em; text-transform: uppercase; }
         .badge-blue   { background: #dbeafe; color: #1d4ed8; }
         .badge-green  { background: #d1fae5; color: #065f46; }
-        .badge-red    { background: #fee2e2; color: #991b1b; }
         .badge-amber  { background: #fef3c7; color: #92400e; }
         .badge-purple { background: #ede9fe; color: #5b21b6; }
         .badge-gray   { background: var(--gray100); color: var(--gray700); }
-
-        /* ── FOOTER ── */
-        footer {
-            background: var(--navy2); border-top: 1px solid #1e3a5f;
-            padding: 1.25rem 2rem;
-            display: flex; align-items: center;
-            justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
-        }
-        .footer-left { font-size: 0.75rem; color: #475569; }
+        footer { background: var(--navy2); border-top: 1px solid #1e3a5f; padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+        .footer-left  { font-size: 0.75rem; color: #475569; }
         .footer-right { font-size: 0.72rem; color: #334155; }
     </style>
 </head>
 <body>
 
-<!-- LOADING SCREEN -->
-<div id="loader">
-    <div class="loader-logo">🌬️ India Air Quality Monitor</div>
-    <div class="loader-sub">Central Pollution Control Board Data</div>
-    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
-    <div class="loader-status" id="loaderStatus">Initialising data engine...</div>
-</div>
-
-<!-- TOP BAR -->
 <div class="topbar">
-    <div class="topbar-left">Ministry of Environment, Forest and Climate Change · CPCB Data Portal</div>
+    <div class="topbar-left">Climate TRACE · Global Transportation Emissions · 2021</div>
     <div class="topbar-right">
         <div class="live-dot"></div>
-        <div class="live-text">Live Data · Feb 2026</div>
+        <div class="live-text">Data · 2021</div>
     </div>
 </div>
 
-<!-- NAVBAR -->
 <nav>
     <a href="/" class="nav-brand">
-        <div class="nav-brand-icon">🌬️</div>
+        <div class="nav-brand-icon">🌍</div>
         <div class="nav-brand-text">
-            <div class="nav-brand-title">Air Quality Monitor</div>
-            <div class="nav-brand-sub">India · CPCB · 2026</div>
+            <div class="nav-brand-title">Carbon Emissions Monitor</div>
+            <div class="nav-brand-sub">Climate TRACE · 2021</div>
         </div>
     </a>
     <div class="nav-links">
-        <a href="/"        class="{{ 'active' if title == 'Dashboard' else '' }}">Dashboard</a>
-        <a href="/data"    class="{{ 'active' if title == 'Dataset' else '' }}">📊 Dataset</a>
-        <a href="/chatbot" class="{{ 'active' if 'AirBot' in title else '' }}">🌬️ AirBot</a>
-        <a href="/about"   class="{{ 'active' if title == 'About' else '' }}">About</a>
+        <a href="/" class="{{ 'active' if title == 'Dashboard' else '' }}">Dashboard</a>
+        <a href="/data" class="{{ 'active' if title == 'Dataset' else '' }}">📊 Dataset</a>
+        <a href="/chatbot" class="{{ 'active' if 'AirBot' in title else '' }}">🤖 ChatBot</a>
+        <a href="/about" class="{{ 'active' if title == 'About' else '' }}">About</a>
     </div>
 </nav>
 
-<!-- MAIN CONTENT -->
 <main>
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
 </main>
 
-<!-- FOOTER -->
 <footer>
-    <div class="footer-left">
-        Data Source: Central Pollution Control Board (CPCB), India · February 25, 2026 ·
-        3,294 readings across 251 cities
-    </div>
-    <div class="footer-right">India Air Quality Monitor · Built with Flask &amp; ML</div>
+    <div class="footer-left">Data Source: Climate TRACE API · Road Transportation · 231 Countries · 2021</div>
+    <div class="footer-right">Carbon Emissions Monitor · Built with Flask &amp; ML</div>
 </footer>
 
 <script>
-    // ── LOADING SCREEN ──
-    const loader = document.getElementById('loader');
-    const loaderStatus = document.getElementById('loaderStatus');
-    const msgs = [
-        'Initialising data engine...',
-        'Loading 3,294 air quality readings...',
-        'Preparing ML chatbot...',
-        'Almost ready...'
-    ];
-    let mi = 0;
-    const mt = setInterval(() => { loaderStatus.textContent = msgs[++mi % msgs.length]; }, 600);
-    window.addEventListener('load', () => {
-        clearInterval(mt);
-        setTimeout(() => loader.classList.add('hidden'), 300);
-    });
-    setTimeout(() => loader.classList.add('hidden'), 4000);
-
-    // ── KEEP-ALIVE PING (prevents Render sleeping) ──
-    setInterval(() => { fetch('/ping').catch(() => {}); }, 10 * 60 * 1000);
-
-    // ── ACTIVE NAV ──
     document.querySelectorAll('.nav-links a').forEach(a => {
         if (a.href === window.location.href) a.classList.add('active');
     });
+    setInterval(() => { fetch('/ping').catch(() => {}); }, 10 * 60 * 1000);
 </script>
 </body>
 </html>
